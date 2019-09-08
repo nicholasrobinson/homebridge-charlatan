@@ -9,6 +9,13 @@
   "author": "Nicholas Robinson",
   "license": "MIT",
   "dependencies": {
-    "homebridge": "^0.4.50"
+    "node-persist": "^2.1.0"
+  },
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.2.0"
   }
 }
