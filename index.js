@@ -6,12 +6,15 @@ module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   HomebridgeAPI = homebridge;
-  homebridge.registerAccessory("homebridge-charlatan", "CharlatanSwitch", CharlatanSwitch);
+  homebridge.registerAccessory("homebridge-charlatan", "CharlatanSwitch", function(log, config) {
+    return new CharlatanSwitch(log, config, homebridge);
+  });
 }
 
-function CharlatanSwitch(log, config) {
+function CharlatanSwitch(log, config, homebridge) {
   this.log = log;
   this.name = config.name;
+  this._homebridge = homebridge;
 
   this._accessoryInformation = new Service.AccessoryInformation();
   this._accessoryInformation.setCharacteristic(Characteristic.Manufacturer, 'HomeBridge Charlatan')
