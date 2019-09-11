@@ -11,10 +11,12 @@ module.exports = function (homebridge) {
   });
 }
 
-function CharlatanSwitch(log, config, homebridge) {
+function CharlatanSwitch(log, config, homebridgeApi) {
   this.log = log;
   this.name = config.name;
-  this._homebridge = homebridge;
+  this._api = homebridgeApi;
+  this._bridge = config.overrides ? config.overrides.bridge : null;
+  this._overrideAccessories = config.overrides && config.overrides.accessories ? config.overrides.accessories : null;
 
   this._accessoryInformation = new Service.AccessoryInformation();
   this._accessoryInformation.setCharacteristic(Characteristic.Manufacturer, 'HomeBridge Charlatan')
