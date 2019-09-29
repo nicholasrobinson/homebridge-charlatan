@@ -79,5 +79,10 @@ Charlatan.prototype.getBridgedAccessoryByName = function(name) {
       return this._bridge.bridgedAccessories[i];
     }
   }
+  for (var i = 0;  i < this._bridge._hiddenAccessories.length; i++) {
+    if (this._bridge._hiddenAccessories[i].displayName == name) {
+      return this._bridge._hiddenAccessories[i];
+    }
+  }
   return null;
 }
