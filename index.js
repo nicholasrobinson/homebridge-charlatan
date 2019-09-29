@@ -39,9 +39,10 @@ Charlatan.prototype.getServices = function () {
 }
 
 Charlatan.prototype._setState = function (value, callback) {
-    this.setOverriddenAccessoryCharacteristics(value);
-    this._service.setCharacteristic(Characteristic.CurrentDoorState, value);
-    callback();
+  this.log("Setting state to " + value);
+  this.setOverriddenAccessoryCharacteristics(value);
+  this._service.setCharacteristic(Characteristic.CurrentDoorState, value);
+  callback();
 }
 
 Charlatan.prototype._getState = function (callback) {
