@@ -37,12 +37,18 @@ CharlatanSwitch.prototype.getServices = function () {
 CharlatanSwitch.prototype._setState = function (value, callback) {
   this.log("Setting state to " + value);
   if (value == Characteristic.TargetDoorState.CLOSED) {
+
     this.log("*** Closing logic goes here ***");
+    this.setOverriddenAccessoryCharacteristics(false);
+
     callback();
     this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
   }
   else if (value == Characteristic.TargetDoorState.OPEN) {
+
     this.log("*** Opening logic goes here ***");
+    this.setOverriddenAccessoryCharacteristics(true);
+
     callback();
     this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.OPEN);
   }
@@ -59,4 +65,25 @@ CharlatanSwitch.prototype._getState = function (callback) {
   else {
     callback(err, Characteristic.CurrentDoorState.CLOSED);
   }
+}
+
+CharlatanSwitch.prototype.setOverriddenAccessoryCharacteristics = function (value) {
+  this._overrideAccessories.forEach(overrideAccessory => {
+    var accessory = this.getBridgedAccessoryByName(overrideAccessory.name);
+    if (accessory) {
+      var service = accessory.getService(overrideAccessory.name);
+      if (service) {
+        service.setCharacteristic(Characteristic.On, value);
+      }
+    }
+  });
+}
+
+CharlatanSwitch.prototype.getBridgedAccessoryByName = function(name) {
+  for (var i = 0;  i < this._bridge.bridgedAccessories.length; i++) {
+    if (this._bridge.bridgedAccessories[i].displayName == name) {
+      return this._bridge.bridgedAccessories[i];
+    }
+  }
+  return null;
 }
