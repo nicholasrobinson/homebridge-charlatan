@@ -6,12 +6,12 @@ module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   HomebridgeAPI = homebridge;
-  homebridge.registerAccessory("homebridge-charlatan", "CharlatanSwitch", function(log, config) {
-    return new CharlatanSwitch(log, config, homebridge);
+  homebridge.registerAccessory("homebridge-charlatan", "CharlatanAccessory", function(log, config) {
+    return new CharlatanAccessory(log, config, homebridge);
   });
 }
 
-function CharlatanSwitch(log, config, homebridgeApi) {
+function CharlatanAccessory(log, config, homebridgeApi) {
   this.log = log;
   this.name = config.name;
   this._api = homebridgeApi;
@@ -30,21 +30,21 @@ function CharlatanSwitch(log, config, homebridgeApi) {
   this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
 }
 
-CharlatanSwitch.prototype.getServices = function () {
+CharlatanAccessory.prototype.getServices = function () {
   return [this._accessoryInformation, this._service];
 }
 
-CharlatanSwitch.prototype._setState = function (value, callback) {
+CharlatanAccessory.prototype._setState = function (value, callback) {
     this.setOverriddenAccessoryCharacteristics(value);
     this._service.setCharacteristic(Characteristic.CurrentDoorState, value);
     callback();
 }
 
-CharlatanSwitch.prototype._getState = function (callback) {
+CharlatanAccessory.prototype._getState = function (callback) {
   callback(null, this._service.getCharacteristic(Characteristic.CurrentDoorState));
 }
 
-CharlatanSwitch.prototype.setOverriddenAccessoryCharacteristics = function (state) {
+CharlatanAccessory.prototype.setOverriddenAccessoryCharacteristics = function (state) {
   this._overrideAccessories.forEach(overrideAccessory => {
     var onstate;
     switch (state) {
@@ -68,7 +68,7 @@ CharlatanSwitch.prototype.setOverriddenAccessoryCharacteristics = function (stat
   });
 }
 
-CharlatanSwitch.prototype.getBridgedAccessoryByName = function(name) {
+CharlatanAccessory.prototype.getBridgedAccessoryByName = function(name) {
   for (var i = 0;  i < this._bridge.bridgedAccessories.length; i++) {
     if (this._bridge.bridgedAccessories[i].displayName == name) {
       return this._bridge.bridgedAccessories[i];
