@@ -6,12 +6,12 @@ module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   HomebridgeAPI = homebridge;
-  homebridge.registerAccessory("homebridge-charlatan", "CharlatanAccessory", function(log, config) {
-    return new CharlatanAccessory(log, config, homebridge);
+  homebridge.registerAccessory("homebridge-charlatan", "Charlatan", function(log, config) {
+    return new Charlatan(log, config, homebridge);
   });
 }
 
-function CharlatanAccessory(log, config, homebridgeApi) {
+function Charlatan(log, config, homebridgeApi) {
   this.log = log;
   this.name = config.name;
   this._api = homebridgeApi;
@@ -23,28 +23,35 @@ function CharlatanAccessory(log, config, homebridgeApi) {
   this._accessoryInformation.setCharacteristic(Characteristic.Model, 'NSR-001')
   this._accessoryInformation.setCharacteristic(Characteristic.SerialNumber, 'NR00069');
 
-  this._service = new Service.GarageDoorOpener(this.name);
-  this._service.getCharacteristic(Characteristic.TargetDoorState).on('set', this._setState.bind(this));
-  this._service.getCharacteristic(Characteristic.TargetDoorState).on('get', this._getState.bind(this));  
-  this._service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
-  this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+  this._service = null;
+  switch(config.service) {
+    case "GarageDoorOpener":
+      this._service = new Service.GarageDoorOpener(this.name);
+      this._service.getCharacteristic(Characteristic.TargetDoorState).on('set', this._setState.bind(this));
+      this._service.getCharacteristic(Characteristic.TargetDoorState).on('get', this._getState.bind(this));
+      this._service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+      this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+      break;
+    default:
+      throw new Error("Your config.json has specified an unsupported Charlatan service.");
+  }
 }
 
-CharlatanAccessory.prototype.getServices = function () {
+Charlatan.prototype.getServices = function () {
   return [this._accessoryInformation, this._service];
 }
 
-CharlatanAccessory.prototype._setState = function (value, callback) {
+Charlatan.prototype._setState = function (value, callback) {
     this.setOverriddenAccessoryCharacteristics(value);
     this._service.setCharacteristic(Characteristic.CurrentDoorState, value);
     callback();
 }
 
-CharlatanAccessory.prototype._getState = function (callback) {
+Charlatan.prototype._getState = function (callback) {
   callback(null, this._service.getCharacteristic(Characteristic.CurrentDoorState));
 }
 
-CharlatanAccessory.prototype.setOverriddenAccessoryCharacteristics = function (state) {
+Charlatan.prototype.setOverriddenAccessoryCharacteristics = function (state) {
   this._overrideAccessories.forEach(overrideAccessory => {
     var onstate;
     switch (state) {
@@ -68,7 +75,7 @@ CharlatanAccessory.prototype.setOverriddenAccessoryCharacteristics = function (s
   });
 }
 
-CharlatanAccessory.prototype.getBridgedAccessoryByName = function(name) {
+Charlatan.prototype.getBridgedAccessoryByName = function(name) {
   for (var i = 0;  i < this._bridge.bridgedAccessories.length; i++) {
     if (this._bridge.bridgedAccessories[i].displayName == name) {
       return this._bridge.bridgedAccessories[i];
