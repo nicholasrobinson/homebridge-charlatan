@@ -6,15 +6,12 @@ module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   HomebridgeAPI = homebridge;
-  homebridge.registerAccessory("homebridge-charlatan", "Charlatan", function(log, config) {
-    return new Charlatan(log, config, homebridge);
-  });
+  homebridge.registerAccessory("homebridge-charlatan", "Charlatan", Charlatan);
 }
 
-function Charlatan(log, config, homebridgeApi) {
+function Charlatan(log, config) {
   this.log = log;
   this.name = config.name;
-  this._api = homebridgeApi;
   this._bridge = config.overrides ? config.overrides.bridge : null;
   this._overrideAccessories = config.overrides && config.overrides.accessories ? config.overrides.accessories : null;
 
