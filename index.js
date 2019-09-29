@@ -35,30 +35,13 @@ CharlatanSwitch.prototype.getServices = function () {
 }
 
 CharlatanSwitch.prototype._setState = function (value, callback) {
-  this.log("Setting state to " + value);
-  if (value == Characteristic.TargetDoorState.CLOSED) {
-    this.setOverriddenAccessoryCharacteristics(Characteristic.TargetDoorState.CLOSED);
+    this.setOverriddenAccessoryCharacteristics(value);
+    this._service.setCharacteristic(Characteristic.CurrentDoorState, value);
     callback();
-    this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-  }
-  else if (value == Characteristic.TargetDoorState.OPEN) {
-    this.setOverriddenAccessoryCharacteristics(Characteristic.TargetDoorState.OPEN);
-    callback();
-    this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.OPEN);
-  }
 }
 
 CharlatanSwitch.prototype._getState = function (callback) {
-  this.log("Getting state");
-  var err = null;
-  var isOpen = true;
-
-  if (isOpen) {
-    callback(err, Characteristic.CurrentDoorState.OPEN);
-  }
-  else {
-    callback(err, Characteristic.CurrentDoorState.CLOSED);
-  }
+  callback(null, this._service.getCharacteristic(Characteristic.CurrentDoorState));
 }
 
 CharlatanSwitch.prototype.setOverriddenAccessoryCharacteristics = function (state) {
