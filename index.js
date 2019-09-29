@@ -37,18 +37,12 @@ CharlatanSwitch.prototype.getServices = function () {
 CharlatanSwitch.prototype._setState = function (value, callback) {
   this.log("Setting state to " + value);
   if (value == Characteristic.TargetDoorState.CLOSED) {
-
-    this.log("*** Closing logic goes here ***");
-    this.setOverriddenAccessoryCharacteristics(false);
-
+    this.setOverriddenAccessoryCharacteristics(Characteristic.TargetDoorState.CLOSED);
     callback();
     this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
   }
   else if (value == Characteristic.TargetDoorState.OPEN) {
-
-    this.log("*** Opening logic goes here ***");
-    this.setOverriddenAccessoryCharacteristics(true);
-
+    this.setOverriddenAccessoryCharacteristics(Characteristic.TargetDoorState.OPEN);
     callback();
     this._service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.OPEN);
   }
@@ -67,14 +61,26 @@ CharlatanSwitch.prototype._getState = function (callback) {
   }
 }
 
-CharlatanSwitch.prototype.setOverriddenAccessoryCharacteristics = function (value) {
+CharlatanSwitch.prototype.setOverriddenAccessoryCharacteristics = function (state) {
   this._overrideAccessories.forEach(overrideAccessory => {
+    var onstate;
+    switch (state) {
+      case Characteristic.CurrentDoorState.CLOSED:
+        onstate = !overrideAccessory.onState;
+        break;
+      case Characteristic.CurrentDoorState.OPEN:
+      default:
+        onstate = overrideAccessory.onState;
+        break;
+    }
     var accessory = this.getBridgedAccessoryByName(overrideAccessory.name);
     if (accessory) {
       var service = accessory.getService(overrideAccessory.name);
-      if (service) {
-        service.setCharacteristic(Characteristic.On, value);
-      }
+      service.characteristics.forEach(characteristic => {
+        if (characteristic instanceof Characteristic.On) {
+          service.setCharacteristic(Characteristic.On, onstate);
+        }
+      });
     }
   });
 }
